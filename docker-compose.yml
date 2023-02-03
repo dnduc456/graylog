@@ -14,9 +14,9 @@ services:
     volumes:
       - "./elasticsearch/data:/usr/share/elasticsearch/data"
     environment:
-      - http.host=0.0.0.0
-      - transport.host=localhost
-      - network.host=0.0.0.0
+      - http.host=host.docker.internal
+      - transport.host=host.docker.internal
+      - network.host=host.docker.internal
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
       memlock:
@@ -28,6 +28,8 @@ services:
           memory: 1g
     networks:
       - graylog
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   graylog:
     image: graylog/graylog:4.3.10
     volumes:
@@ -36,8 +38,9 @@ services:
       - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
       # Password: admin
       - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
-      - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:9000/
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://host.docker.internal:9000/
       - GRAYLOG_MESSAGE_JOURNAL_MAX_SIZE=100MB
+      - GRAYLOG_ELASTICSEARCH_HOSTS=
     networks:
       - graylog
     depends_on:
@@ -49,6 +52,8 @@ services:
       - 1514:1514/udp
       - 12201:12201
       - 12201:12201/udp
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 networks:
   graylog:
     driver: bridge
